@@ -1,92 +1,109 @@
-#include<stdio.h>
-#include<conio.h>
-#include<stdlib.h>
-#define MAX 5
-int queue[MAX];
-int front=-1,rear=-1;
-void insert_rear();
-int delete_front();
-void display();
-int peek();
-void main()
-{
-  int ch,item;
-  clrscr();
-  for(;;)
-  {
-  printf("Press 1 for Insert \n 2 for Delete \n 3 for display\n");
-  printf("Press 4 for Peek\n");
-  printf("Enter your choice\n");
-  scanf("%d",&ch);
-  switch(ch)
-  {
-     case 1: insert_rear();
-	     break;
-     case 2 : item=delete_front();
-	     if(item!=-1)
-	     printf("Item deleted=%d",item);
-	     break;
-     case 3 : display();
-	      break;
-     case 4:item=peek();
-	    if(item!=-1)
-	     printf("First Value in the Queue=%d",item);
-	     break;
-    default : exit(0);
-  }
+#include <stdio.h>
+#include <conio.h>
+#include <malloc.h>
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+struct queue {
+    struct node *front;
+    struct node *rear;
+};
+
+void create_queue(struct queue *q) {
+    q->rear = NULL;
+    q->front = NULL;
 }
-  getch();
+
+struct queue *insert(struct queue *q, int val) {
+    struct node *ptr;
+    ptr = (struct node *)malloc(sizeof(struct node));
+    ptr->data = val;
+    if (q->front == NULL) {
+        q->front = ptr;
+        q->rear = ptr;
+        q->front->next = q->rear->next = NULL;
+    } else {
+        q->rear->next = ptr;
+        q->rear = ptr;
+        q->rear->next = NULL;
+    }
+    return q;
 }
-void insert_rear()
-{
-   int num;
-   printf("\n Enter the item to be Inserted");
-   scanf("%d",&num);
-   if(rear==MAX-1)
-    printf("Queue is full\n");
-   else if(front==-1 && rear==-1)
-      front=rear=0;
-   else
-    rear++;
-    queue[rear]=num;
+
+struct queue *delete_element(struct queue *q) {
+    struct node *ptr;
+    ptr = q->front;
+    if (q->front == NULL) {
+        printf("\n UNDERFLOW");
+    } else {
+        q->front = q->front->next;
+        printf("\n The value being deleted is : %d", ptr->data);
+        free(ptr);
+    }
+    return q;
 }
-int delete_front()
-{
-   int item_deleted;
-   if(front==-1 || front >rear)
-   {
-      printf("QUEUE is empty\n");
-      return -1;
-   }
-   else
-   {
-	item_deleted=queue[front];
-	front++;
-		if(front>rear)
-		  {
-		     front=rear=-1;
-		  }
-     return item_deleted;
-   }
+
+int peek(struct queue *q) {
+    if (q->front == NULL) {
+        printf("\n QUEUE IS EMPTY");
+        return -1;
+    } else {
+        return q->front->data;
+    }
 }
-void display()
-{
- int i;
-   if(front==-1 || front >rear)
-     printf("QUEUE is empty\n");
-  else
-  {
-   printf("Content of the QUEUE is\n");
-   for(i=front;i<=rear;i++)
-     printf("%d\t",queue[i]);
-  }
+
+struct queue *display(struct queue *q) {
+    struct node *ptr;
+    ptr = q->front;
+    if (ptr == NULL) {
+        printf("\n QUEUE IS EMPTY");
+    } else {
+        printf("\n");
+        while (ptr != q->rear) {
+            printf("%d\t", ptr->data);
+            ptr = ptr->next;
+        }
+        printf("%d\t", ptr->data);
+    }
+    return q;
 }
-int peek()
-{
-   if(front==-1 || front >rear)
-     printf("QUEUE is empty\n");
-  else
-  {
-     return queue[front];
-  }
+
+int main() {
+    int val, option;
+    struct queue *q = (struct queue *)malloc(sizeof(struct queue));
+    create_queue(q);
+    clrscr();
+    do {
+        printf("\n ****MAIN MENU****");
+        printf("\n 1. INSERT");
+        printf("\n 2. DELETE");
+        printf("\n 3. PEEK");
+        printf("\n 4. DISPLAY");
+        printf("\n 5. EXIT");
+        printf("\n Enter your option : ");
+        scanf("%d", &option);
+        switch (option) {
+            case 1:
+                printf("\n Enter the number to insert in the queue: ");
+                scanf("%d", &val);
+                q = insert(q, val);
+                break;
+            case 2:
+                q = delete_element(q);
+                break;
+            case 3:
+                val = peek(q);
+                if (val != -1)
+                    printf("\n The value at front of queue is : %d", val);
+                break;
+            case 4:
+                q = display(q);
+                break;
+        }
+    } while (option != 5);
+    getch();
+    return 0;
 }
